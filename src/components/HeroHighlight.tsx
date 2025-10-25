@@ -1,35 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { useGetTrendingMoviesQuery } from '../store/api/moviesApi';
 import { MovieDetail } from './MovieDetail';
-import type { MediaType } from '../types/movie';
-
-const imgBaseBackdrop = 'https://image.tmdb.org/t/p/original';
 
 export function HeroHighlight() {
   const { data, isLoading, error, isFetching } = useGetTrendingMoviesQuery({ page: 1 });
 
-  // Helper para leer vote_average sin romper tipos
-  const voteAvg = (item: unknown): number => {
-    const v = (item as any)?.vote_average;
-    return typeof v === 'number' ? v : 0;
-  };
-
-  // Seleccionar la película con mayor votación (filtrando elementos sin vote_average)
+  // Simplificar: calcular el top con useMemo sin helpers extra
   const candidates = Array.isArray(data?.results) ? data!.results : [];
-  const top = candidates.length > 0
-    ? candidates.reduce((max, cur) => (voteAvg(cur) > voteAvg(max) ? cur : max), candidates[0])
-    : undefined;
-
-  const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [selectedType, setSelectedType] = useState<MediaType | null>(null);
-
-  // Al cargar, mostrar detalles de la película con mayor votación
-  useEffect(() => {
-    if (top && selectedId !== top.id) {
-      setSelectedId(top.id);
-      setSelectedType('movie');
-    }
-  }, [top?.id]);
+  const top = useMemo(() => {
+    if (candidates.length === 0) return undefined;
+    return candidates.reduce((max, cur) => {
+      const curV = Number((cur as any)?.vote_average) || 0;
+      const maxV = Number((max as any)?.vote_average) || 0;
+      return curV > maxV ? cur : max;
+    }, candidates[0]);
+  }, [data?.results]);
 
   // Skeleton de carga
   if (isLoading) {
@@ -51,8 +36,9 @@ export function HeroHighlight() {
   if (!top) return null;
 
   const title = (top as any).title ?? (top as any).name ?? 'Sin título';
-  const overview = (top as any).overview ?? '';
-  const background = (top as any).backdrop_path ? `${imgBaseBackdrop}${(top as any).backdrop_path}` : ((top as any).poster_path ? `${imgBaseBackdrop}${(top as any).poster_path}` : undefined);
+  const background = (top as any).backdrop_path
+    ? `https://image.tmdb.org/t/p/original${(top as any).backdrop_path}`
+    : ((top as any).poster_path ? `https://image.tmdb.org/t/p/original${(top as any).poster_path}` : undefined);
   const rating = typeof (top as any)?.vote_average === 'number' ? (top as any).vote_average.toFixed(1) : undefined;
 
   return (
@@ -81,15 +67,12 @@ export function HeroHighlight() {
               </span>
             )}
           </div>
-          {/* Sinopsis removida para evitar duplicado con MovieDetail */}
-          {/* {overview && <p className="text-xs sm:text-sm lg:text-base text-neutral-200 line-clamp-2">{overview}</p>} */}
-          {/* Botones de acción removidos */}
         </div>
       </div>
 
-      {selectedId && selectedType && (
+      {top && (
         <div className="relative z-10 p-4 sm:p-6">
-          <MovieDetail id={selectedId} type={selectedType} showCloseButton={false} imageHalf={true} compact={true} />
+          <MovieDetail id={(top as any).id} type="movie" showCloseButton={false} imageHalf={true} compact={true} />
         </div>
       )}
     </section>
