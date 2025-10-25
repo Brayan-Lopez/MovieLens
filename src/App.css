@@ -1,0 +1,10 @@
+/* App.css limpio para evitar estilos de demo que afecten layout */
+
+#root {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  text-align: initial;
+}
+
+/* Sin animaciones ni estilos adicionales: Tailwind controla la UI */

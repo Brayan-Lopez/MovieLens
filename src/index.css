@@ -1,0 +1,197 @@
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+  box-shadow: 0 0 0 2px rgba(100, 108, 255, 0.35);
+}
+
+html, body {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  display: block;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+  box-shadow: 0 0 0 2px rgba(100, 108, 255, 0.35);
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+
+@import "tailwindcss";
+
+/* Reset y base opcional complementario al tema dark */
+html, body, #root {
+  height: 100%;
+}
+#root {
+  width: 100%;
+}
+
+/* Puedes conservar algunos estilos existentes si lo necesitas, pero Tailwind cubrirá la mayoría */
+
+/* Utilidades de vidrio líquido (glassmorphism) en tema oscuro */
+.glass-panel {
+  background: rgba(24, 24, 24, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px rgba(255, 255, 255, 0.06);
+}
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .glass-panel {
+    backdrop-filter: blur(12px) saturate(120%);
+    -webkit-backdrop-filter: blur(12px) saturate(120%);
+  }
+}
+
+.glass-card {
+  background: rgba(30, 30, 30, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35), inset 0 1px rgba(255, 255, 255, 0.06);
+  transition: background-color 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+}
+.glass-card:hover {
+  background: rgba(38, 38, 38, 0.5);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 0 2px rgba(100, 108, 255, 0.28), 0 6px 24px rgba(0, 0, 0, 0.35);
+}
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .glass-card {
+    backdrop-filter: blur(8px) saturate(110%);
+    -webkit-backdrop-filter: blur(8px) saturate(110%);
+  }
+}
+
+/* Botón de vidrio líquido (oscuro) */
+.glass-button {
+  background: rgba(32, 32, 32, 0.5);
+  color: #e5e7eb;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 3px 16px rgba(0, 0, 0, 0.35), inset 0 1px rgba(255, 255, 255, 0.06);
+  transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 80ms ease;
+}
+.glass-button:hover {
+  background: rgba(40, 40, 40, 0.6);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 0 0 2px rgba(100, 108, 255, 0.28), 0 3px 16px rgba(0, 0, 0, 0.35);
+}
+.glass-button:active {
+  transform: translateY(1px);
+}
+.glass-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .glass-button {
+    backdrop-filter: blur(6px) saturate(110%);
+    -webkit-backdrop-filter: blur(6px) saturate(110%);
+  }
+}
+
+/* Variante primaria con acento */
+.glass-button--primary {
+  background: rgba(100, 108, 255, 0.18);
+  color: #f3f4f6;
+  border: 1px solid rgba(100, 108, 255, 0.45);
+  box-shadow: 0 6px 20px rgba(100, 108, 255, 0.25);
+}
+.glass-button--primary:hover {
+  background: rgba(100, 108, 255, 0.26);
+  border-color: rgba(100, 108, 255, 0.6);
+}
+
+/* Chip compacto */
+.glass-chip {
+  background: rgba(36, 36, 36, 0.55);
+  color: #e5e7eb;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.06);
+}
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .glass-chip {
+    backdrop-filter: blur(8px) saturate(120%);
+    -webkit-backdrop-filter: blur(8px) saturate(120%);
+  }
+}
+
+/* Input de vidrio líquido */
+.glass-input {
+  background: rgba(22, 22, 22, 0.6);
+  color: #f3f4f6;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.06);
+}
+.glass-input::placeholder {
+  color: #9ca3af;
+}
+.glass-input:focus {
+  outline: none;
+  border-color: #646cff;
+  box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.25);
+}
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .glass-input {
+    backdrop-filter: blur(10px) saturate(110%);
+    -webkit-backdrop-filter: blur(10px) saturate(110%);
+  }
+}
+
+/* Chip hover (acento sutil) */
+.glass-chip:hover {
+  box-shadow: 0 0 0 2px rgba(100, 108, 255, 0.28), inset 0 1px rgba(255, 255, 255, 0.06);
+}
