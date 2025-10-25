@@ -49,6 +49,7 @@ export function FeaturedMovies() {
   const totalPagesUi = typeof data?.total_pages === 'number' 
     ? data.total_pages 
     : Math.max(1, Math.ceil(totalResults / 20));
+  const totalPagesCap = Math.min(totalPagesUi, 500);
 
   return (
     <div className="space-y-4">
@@ -112,8 +113,28 @@ export function FeaturedMovies() {
 
               <button
                 className="glass-button px-2 py-2 rounded max-[528px]:px-1 max-[528px]:py-1 max-[528px]:text-[0.5rem]"
-                onClick={() => setUiPage((p) => Math.min(totalPagesUi, p + 1))}
-                disabled={uiPage >= totalPagesUi}
+                onClick={() => setUiPage(1)}
+                disabled={uiPage <= 1}
+                aria-label="Primera"
+                title="Primera"
+              >
+                <span aria-hidden="true">{'<<'}</span>
+              </button>
+
+              <button
+                className="glass-button px-2 py-2 rounded max-[528px]:px-1 max-[528px]:py-1 max-[528px]:text-[0.5rem]"
+                onClick={() => setUiPage(totalPagesCap)}
+                disabled={uiPage >= totalPagesCap}
+                aria-label="Última"
+                title="Última"
+              >
+                <span aria-hidden="true">{'>>'}</span>
+              </button>
+
+              <button
+                className="glass-button px-2 py-2 rounded max-[528px]:px-1 max-[528px]:py-1 max-[528px]:text-[0.5rem]"
+                onClick={() => setUiPage((p) => Math.min(totalPagesCap, p + 1))}
+                disabled={uiPage >= totalPagesCap}
                 aria-label="Siguiente"
                 title="Siguiente"
               >
@@ -132,33 +153,33 @@ export function FeaturedMovies() {
               <span aria-hidden="true">{'<'}</span>
             </button>
 
+            {/* Primera página en desktop */}
+            <button
+              className="glass-button px-2 py-2 rounded max-[528px]:hidden"
+              onClick={() => setUiPage(1)}
+              disabled={uiPage <= 1}
+              aria-label="Primera"
+              title="Primera"
+            >
+              <span aria-hidden="true">{'<<'}</span>
+            </button>
+
             {/* Números */}
             <div className="flex items-center gap-2 justify-center w-full max-[528px]:gap-1 max-[528px]:text-[0.5rem]">
               <div className="flex items-center gap-1 max-[528px]:gap-1">
                 {(() => {
-                  // Mostrar solo 3 botones numéricos, excluyendo la última página del rango
-                  const maxVisible = 3;
-                  const lastPage = Math.max(1, totalPagesUi);
-                  let startPage = Math.max(1, uiPage - 1);
-                  let endPage = Math.min(lastPage - 1, uiPage + 1);
-
-                  if (endPage < startPage) endPage = startPage;
-                  const visible = endPage - startPage + 1;
-                  if (visible < maxVisible) {
-                    const deficit = maxVisible - visible;
-                    endPage = Math.min(lastPage - 1, endPage + deficit);
-                    startPage = Math.max(1, endPage - maxVisible + 1);
-                  }
+                  const maxVisible = 4;
+                  const lastPage = Math.max(1, totalPagesCap);
+                  let startPage = Math.max(1, Math.min(uiPage - 1, Math.max(1, (lastPage - 1) - (maxVisible - 1))));
+                  let endPage = Math.min(lastPage - 1, startPage + (maxVisible - 1));
 
                   const pages: number[] = [];
-                  for (let p = startPage; p <= endPage; p++) pages.push(p);
+                  if (lastPage > 1) {
+                    for (let p = startPage; p <= endPage; p++) pages.push(p);
+                  }
 
                   return (
                     <>
-                      {/* Ellipsis antes del rango si hay páginas previas */}
-                      {startPage > 1 && <span className="text-neutral-500">…</span>}
-
-                      {/* Rango visible */}
                       {pages.map((p) => (
                         p === uiPage ? (
                           <button
@@ -180,30 +201,28 @@ export function FeaturedMovies() {
                           </button>
                         )
                       ))}
-
-                      {/* Ellipsis después del rango si no llegamos a la última */}
-                      {endPage < lastPage && <span className="text-neutral-500">…</span>}
-
-                      {/* Última página */}
-                      {uiPage < lastPage && (
-                        <button
-                          className="glass-button px-2 py-1 rounded text-neutral-300 max-[528px]:px-1 max-[528px]:py-0.5 max-[528px]:text-[0.5rem]"
-                          onClick={() => setUiPage(lastPage)}
-                        >
-                          {lastPage}
-                        </button>
-                      )}
                     </>
                   );
                 })()}
               </div>
             </div>
 
+            {/* Última página en desktop */}
+            <button
+              className="glass-button px-2 py-2 rounded max-[528px]:hidden"
+              onClick={() => setUiPage(totalPagesCap)}
+              disabled={uiPage >= totalPagesCap}
+              aria-label="Última"
+              title="Última"
+            >
+              <span aria-hidden="true">{'>>'}</span>
+            </button>
+
             {/* Flecha derecha en desktop */}
             <button
               className="glass-button px-2 py-2 rounded max-[528px]:hidden"
-              onClick={() => setUiPage((p) => Math.min(totalPagesUi, p + 1))}
-              disabled={uiPage >= totalPagesUi}
+              onClick={() => setUiPage((p) => Math.min(totalPagesCap, p + 1))}
+              disabled={uiPage >= totalPagesCap}
               aria-label="Siguiente"
               title="Siguiente"
             >

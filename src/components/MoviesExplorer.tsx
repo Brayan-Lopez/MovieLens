@@ -77,6 +77,7 @@ export function MoviesExplorer() {
           <div className="mb-2 text-sm text-neutral-300">
             <strong>Resultados:</strong> {data.total_results}
             {isFetching && <span className="ml-2 text-neutral-500">(actualizando...)</span>}
+            <span className="ml-2">• Página {page} de {Math.min(data.total_pages, 500)}</span>
           </div>
           <MovieList 
             items={data.results} 
@@ -101,8 +102,28 @@ export function MoviesExplorer() {
 
                 <button
                   className="glass-button px-2 py-2 rounded max-[528px]:px-1 max-[528px]:py-1 max-[528px]:text-[0.5rem]"
-                  onClick={() => setPage((p) => Math.min(data.total_pages, p + 1))}
-                  disabled={page >= data.total_pages}
+                  onClick={() => setPage(1)}
+                  disabled={page <= 1}
+                  aria-label="Primera"
+                  title="Primera"
+                >
+                  <span aria-hidden="true">{'<<'}</span>
+                </button>
+
+                <button
+                  className="glass-button px-2 py-2 rounded max-[528px]:px-1 max-[528px]:py-1 max-[528px]:text-[0.5rem]"
+                  onClick={() => setPage(Math.min(data.total_pages, 500))}
+                  disabled={page >= Math.min(data.total_pages, 500)}
+                  aria-label="Última"
+                  title="Última"
+                >
+                  <span aria-hidden="true">{'>>'}</span>
+                </button>
+
+                <button
+                  className="glass-button px-2 py-2 rounded max-[528px]:px-1 max-[528px]:py-1 max-[528px]:text-[0.5rem]"
+                  onClick={() => setPage((p) => Math.min(Math.min(data.total_pages, 500), p + 1))}
+                  disabled={page >= Math.min(data.total_pages, 500)}
                   aria-label="Siguiente"
                   title="Siguiente"
                 >
@@ -121,33 +142,33 @@ export function MoviesExplorer() {
                 <span aria-hidden="true">{'<'}</span>
               </button>
 
+              {/* Primera página en desktop */}
+              <button
+                className="glass-button px-2 py-2 rounded max-[528px]:hidden"
+                onClick={() => setPage(1)}
+                disabled={page <= 1}
+                aria-label="Primera"
+                title="Primera"
+              >
+                <span aria-hidden="true">{'<<'}</span>
+              </button>
+
               {/* Números */}
               <div className="flex items-center gap-2 justify-center w-full max-[528px]:gap-1 max-[528px]:text-[0.5rem]">
                 <div className="flex items-center gap-1 max-[528px]:gap-1">
                   {(() => {
-                    // Mostrar solo 3 botones numéricos, excluyendo la última página del rango
-                    const maxVisible = 3;
-                    const lastPage = Math.max(1, data.total_pages);
-                    let startPage = Math.max(1, page - 1);
-                    let endPage = Math.min(lastPage - 1, page + 1);
-
-                    if (endPage < startPage) endPage = startPage;
-                    const visible = endPage - startPage + 1;
-                    if (visible < maxVisible) {
-                      const deficit = maxVisible - visible;
-                      endPage = Math.min(lastPage - 1, endPage + deficit);
-                      startPage = Math.max(1, endPage - maxVisible + 1);
-                    }
+                    const maxVisible = 4;
+                    const lastPage = Math.max(1, Math.min(data.total_pages, 500));
+                    let startPage = Math.max(1, Math.min(page - 1, Math.max(1, (lastPage - 1) - (maxVisible - 1))));
+                    let endPage = Math.min(lastPage - 1, startPage + (maxVisible - 1));
 
                     const pages: number[] = [];
-                    for (let p = startPage; p <= endPage; p++) pages.push(p);
+                    if (lastPage > 1) {
+                      for (let p = startPage; p <= endPage; p++) pages.push(p);
+                    }
 
                     return (
                       <>
-                        {/* Ellipsis antes del rango si hay páginas previas */}
-                        {startPage > 1 && <span className="text-neutral-500">…</span>}
-
-                        {/* Rango visible */}
                         {pages.map((p) => (
                           p === page ? (
                             <button
@@ -169,30 +190,28 @@ export function MoviesExplorer() {
                             </button>
                           )
                         ))}
-
-                        {/* Ellipsis después del rango si no llegamos a la última */}
-                        {endPage < lastPage && <span className="text-neutral-500">…</span>}
-
-                        {/* Última página */}
-                        {page < lastPage && (
-                          <button
-                            className="glass-button px-2 py-1 rounded text-neutral-300 max-[528px]:px-1 max-[528px]:py-0.5 max-[528px]:text-[0.5rem]"
-                            onClick={() => setPage(lastPage)}
-                          >
-                            {lastPage}
-                          </button>
-                        )}
                       </>
                     );
                   })()}
                 </div>
               </div>
 
+              {/* Última página en desktop */}
+              <button
+                className="glass-button px-2 py-2 rounded max-[528px]:hidden"
+                onClick={() => setPage(Math.min(data.total_pages, 500))}
+                disabled={page >= Math.min(data.total_pages, 500)}
+                aria-label="Última"
+                title="Última"
+              >
+                <span aria-hidden="true">{'>>'}</span>
+              </button>
+
               {/* Flecha derecha en desktop */}
               <button
                 className="glass-button px-2 py-2 rounded max-[528px]:hidden"
-                onClick={() => setPage((p) => Math.min(data.total_pages, p + 1))}
-                disabled={page >= data.total_pages}
+                onClick={() => setPage((p) => Math.min(Math.min(data.total_pages, 500), p + 1))}
+                disabled={page >= Math.min(data.total_pages, 500)}
                 aria-label="Siguiente"
                 title="Siguiente"
               >
