@@ -8,10 +8,10 @@ function App() {
   return (
     <div className="min-h-screen bg-neutral-900 text-neutral-100">
       <header className="sticky top-0 z-50 bg-neutral-900/80 backdrop-blur">
-        <div className="mx-auto max-w-7xl px-3 sm:px-4 lg:px-6 py-2 sm:py-4 flex items-center justify-between">
+        <div className="mx-auto max-w-7xl px-3 sm:px-4 lg:px-6 py-2 sm:py-4 flex items-center justify-between gap-8">
           <div className="flex items-center gap-3">
-            <img src="/movielens.svg" alt="MovieLens" className="h-10 w-10 sm:h-20 sm:w-20" />
-            <h1 className="text-lg sm:text-2xl font-semibold tracking-tight text-white">MovieLens</h1>
+            <img src="/movielens.svg" alt="MovieLens" className="h-10 w-10 sm:h-20 sm:w-20 min-h-[55px] min-w-[55px]" />
+            <h1 className="text-lg sm:text-2xl max-[339px]:!text-[1.755rem] max-[339px]:leading-[1.95rem] font-semibold tracking-tight text-white">MovieLens</h1>
           </div>
           <div className="hidden sm:block text-xs sm:text-sm text-neutral-300">
             Explora los detalles de tus pelis y series favoritas
@@ -43,7 +43,7 @@ function App() {
         <div className="mx-auto max-w-7xl px-3 sm:px-4 lg:px-6 py-6 flex items-center justify-between">
           <div className="flex flex-col sm:flex-row sm:items-center sm:gap-3">
             <a href="/" aria-label="Ir al inicio" className="flex items-center gap-3 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-neutral-500 rounded">
-              <img src="/movielens.svg" alt="MovieLens" className="w-6 h-6" />
+              <img src="/movielens.svg" alt="MovieLens" className="w-6 h-6 min-h-[55px] min-w-[55px]" />
               <span className="text-sm text-neutral-300">MovieLens</span>
             </a>
             <span className="text-xs text-neutral-400">Explora los detalles de tus películas favoritas</span>
