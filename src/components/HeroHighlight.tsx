@@ -36,7 +36,7 @@ export function HeroHighlight() {
     return (
       <section className="relative rounded-xl overflow-hidden bg-neutral-900 animate-pulse">
         <div className="absolute inset-0 bg-neutral-800" />
-        <div className="relative p-4 sm:p-10 min-h-[280px] md:min_h-[420px] lg:min_h-[520px] flex items-end">
+        <div className="relative p-4 sm:p-6 min-h-[120px] md:min-h-[160px] lg:min-h-[192px] flex items-end">
           <div className="max-w-2xl space-y-3">
             <div className="h-6 sm:h-8 w-2/3 bg-neutral-700 rounded" />
             <div className="h-4 sm:h-5 w-full bg-neutral-700 rounded" />
@@ -65,30 +65,31 @@ export function HeroHighlight() {
       {/* Overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-neutral-900/70 to-transparent" />
 
-      <div className="relative p-6 sm:p-10 min-h-[320px] md:min-h-[420px] lg:min-h-[520px] flex items-end">
+      <div className="relative p-4 sm:p-6 min-h-[120px] md:min-h-[160px] lg:min-h-[192px] flex items-end">
         <div className="max-w-2xl space-y-3">
-          {/* Chip único "Mejor Botada" */}
+          {/* Chip único "Mejor Valorada" */}
           <div className="inline-flex items-center gap-2">
-            <span className="px-2 py-1 text-xs font-medium rounded glass-chip">Mejor Botada</span>
+            <span className="px-2 py-1 text-xs font-medium rounded glass-chip">Mejor Valorada</span>
             {isFetching && <span className="text-xs text-neutral-400" aria-live="polite">(actualizando...)</span>}
           </div>
 
           <div className="flex items-center gap-2">
-            <h2 className="m-0 text-xl sm:text-4xl lg:text-5xl font-bold tracking-tight">{title}</h2>
+            <h2 className="m-0 text-lg sm:text-3xl lg:text-4xl font-bold tracking-tight">{title}</h2>
             {rating && (
               <span className="px-2 py-1 text-xs sm:text-sm font-medium rounded glass-chip" aria-label="Valoración promedio">
                 ⭐ {rating}
               </span>
             )}
           </div>
-          {overview && <p className="text-xs sm:text-base lg:text-lg text-neutral-200 line-clamp-3">{overview}</p>}
+          {/* Sinopsis removida para evitar duplicado con MovieDetail */}
+          {/* {overview && <p className="text-xs sm:text-sm lg:text-base text-neutral-200 line-clamp-2">{overview}</p>} */}
           {/* Botones de acción removidos */}
         </div>
       </div>
 
       {selectedId && selectedType && (
-        <div className="relative z-10 p-6 sm:p-10">
-          <MovieDetail id={selectedId} type={selectedType} showCloseButton={false} />
+        <div className="relative z-10 p-4 sm:p-6">
+          <MovieDetail id={selectedId} type={selectedType} showCloseButton={false} imageHalf={true} compact={true} />
         </div>
       )}
     </section>

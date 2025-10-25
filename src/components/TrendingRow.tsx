@@ -71,11 +71,11 @@ export function TrendingRow() {
           <div className="pointer-events-none flex">
             <button
               aria-label="Anterior"
-              className={`pointer-events-auto glass-button w-10 sm:w-12 h-full ${!canLeft ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`pointer-events-auto glass-button w-10 sm:w-12 h-full flex items-center justify-center ${!canLeft ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={() => scrollByAmount('left')}
               disabled={!canLeft}
             >
-              <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" className="text-neutral-100">
+              <svg viewBox="0 0 24 24" aria-hidden="true" className="w-6 h-6 text-neutral-100">
                 <path d="M15.5 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </button>
@@ -128,11 +128,11 @@ export function TrendingRow() {
           <div className="pointer-events-none flex">
             <button
               aria-label="Siguiente"
-              className={`pointer-events-auto glass-button w-10 sm:w-12 h-full ${!canRight ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`pointer-events-auto glass-button w-10 sm:w-12 h-full flex items-center justify-center ${!canRight ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={() => scrollByAmount('right')}
               disabled={!canRight}
             >
-              <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" className="text-neutral-100">
+              <svg viewBox="0 0 24 24" aria-hidden="true" className="w-6 h-6 text-neutral-100">
                 <path d="M8.5 5l7 7-7 7" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </button>

@@ -4,6 +4,34 @@ import { MovieList } from './MovieList';
 import { MovieDetail } from './MovieDetail';
 import type { MediaType } from '../types/movie';
 import { SkeletonCard } from './SkeletonCard'
+import { useDispatch, useSelector } from 'react-redux';
+import { setSearchState, clearSearchState, setFilters } from '../store/uiSlice';
+import type { RootState } from '../store';
+
+const GENRES: Array<{ id: number; name: string }> = [
+  { id: 28, name: 'Acción' },
+  { id: 12, name: 'Aventura' },
+  { id: 16, name: 'Animación' },
+  { id: 35, name: 'Comedia' },
+  { id: 80, name: 'Crimen' },
+  { id: 99, name: 'Documental' },
+  { id: 18, name: 'Drama' },
+  { id: 10751, name: 'Familia' },
+  { id: 14, name: 'Fantasía' },
+  { id: 36, name: 'Historia' },
+  { id: 27, name: 'Terror' },
+  { id: 10402, name: 'Música' },
+  { id: 9648, name: 'Misterio' },
+  { id: 10749, name: 'Romance' },
+  { id: 878, name: 'Ciencia Ficción' },
+  { id: 10770, name: 'Película de TV' },
+  { id: 53, name: 'Suspenso' },
+  { id: 10752, name: 'Guerra' },
+  { id: 37, name: 'Western' },
+];
+
+const YEARS = Array.from({ length: 45 }, (_, i) => 2024 - i);
+const LANGS = ['es', 'en', 'fr', 'de', 'it', 'ja', 'ko', 'pt'];
 
 export function MoviesExplorer() {
   const [term, setTerm] = useState('');
@@ -12,6 +40,8 @@ export function MoviesExplorer() {
   const [selectedDetailType, setSelectedDetailType] = useState<MediaType | null>(null);
   const [selectedType, setSelectedType] = useState<'movie'|'tv'|'multi'|undefined>(undefined);
   const [page, setPage] = useState(1);
+  const dispatch = useDispatch();
+  const filters = useSelector((s: RootState) => s.ui.filters);
 
   // Debounce del término de búsqueda
   useEffect(() => {
@@ -33,23 +63,130 @@ export function MoviesExplorer() {
     { skip: !effectiveTerm }
   );
 
+  // Actualiza el estado global de resultados para que FeaturedMovies pueda consumirlos
+  useEffect(() => {
+    if (!effectiveTerm) {
+      dispatch(clearSearchState());
+      return;
+    }
+    if (data) {
+      dispatch(setSearchState({
+        query: effectiveTerm,
+        type: searchType,
+        page,
+        totalResults: data.total_results ?? 0,
+        results: data.results ?? [],
+      }));
+    }
+  }, [effectiveTerm, searchType, page, data, dispatch]);
+
+  // Handlers de filtros
+  const updateFilters = (next: Partial<typeof filters>) => {
+    dispatch(setFilters({
+      ...filters,
+      ...next,
+    }));
+  };
+
   return (
-    <div className="space-y-3">
-      <h1 className="text-lg sm:text-xl font-bold">Buscador TMDb</h1>
+    <div className="space-y-6 sm:space-y-7">
+      <h1 className="m-0 mb-3 sm:mb-4 !text-[1.2rem] sm:!text-[1.6rem] lg:!text-[2rem] leading-[1.2] font-bold">Término de búsqueda:</h1>
       <input
         type="text"
         value={term}
         onChange={(e) => setTerm(e.target.value)}
         placeholder="Escribe un título..."
-        className="w-full px-3 sm:px-4 py-2 sm:py-3 rounded glass-input"
+        className="mt-1 sm:mt-2 w-full h-9 px-2 text-sm rounded glass-button"
       />
 
-      {/* Grid de categorías */}
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-2 sm:gap-3 mb-4">
-        <button onClick={() => setSelectedType('multi')} className="glass-button px-3 py-2 rounded">Todos</button>
-        <button onClick={() => setSelectedType('movie')} className="glass-button px-3 py-2 rounded">Película</button>
-        <button onClick={() => setSelectedType('tv')} className="glass-button px-3 py-2 rounded">Serie</button>
-        <button onClick={() => setSelectedType(undefined)} className="glass-button px-3 py-2 rounded">Borrar filtro</button>
+      {/* Filtros */}
+
+      <div className="flex flex-wrap w-fit mx-auto lg:w-full lg:mx-0 gap-2 sm:gap-3 mt-2 justify-center">
+        <div className="lg:flex-1 min-w-[120px] sm:min-w-[140px]">
+          <label className="block text-sm mb-1">Calidad:</label>
+          <select
+            className="w-full h-9 px-2 text-sm rounded glass-button max-w-[160px] min-w-[120px] sm:min-w-[140px] lg:max-w-none"
+            value={filters.quality}
+            onChange={(e) => updateFilters({ quality: e.target.value as any })}
+          >
+            <option value="all">Todos</option>
+            <option value="high">Alta (≥ 7.0)</option>
+            <option value="medium">Media (5–6.9)</option>
+            <option value="low">Baja (&lt; 5.0)</option>
+          </select>
+        </div>
+        <div className="lg:flex-1 min-w-[120px] sm:min-w-[140px]">
+          <label className="block text-sm mb-1">Género:</label>
+          <select
+            className="w-full h-9 px-2 text-sm rounded glass-button max-w-[160px] min-w-[120px] sm:min-w-[140px] lg:max-w-none"
+            value={filters.genreId === 'all' ? 'all' : String(filters.genreId)}
+            onChange={(e) => updateFilters({ genreId: e.target.value === 'all' ? 'all' : Number(e.target.value) })}
+          >
+            <option value="all">Todos</option>
+            {GENRES.map(g => (
+              <option key={g.id} value={g.id}>{g.name}</option>
+            ))}
+          </select>
+        </div>
+        <div className="lg:flex-1 min-w-[120px] sm:min-w-[140px]">
+          <label className="block text sm mb-1">Clasificación:</label>
+          <select
+            className="w-full h-9 px-2 text-sm rounded glass-button max-w-[160px] min-w-[120px] sm:min-w-[140px] lg:max-w-none"
+            value={filters.classification}
+            onChange={(e) => updateFilters({ classification: e.target.value as any })}
+          >
+            <option value="all">Todos</option>
+            <option value="no_adult">No adulto</option>
+            <option value="adult">Adulto</option>
+          </select>
+        </div>
+        <div className="lg:flex-1 min-w-[120px] sm:min-w-[140px]">
+          <label className="block text-sm mb-1">Año:</label>
+          <select
+            className="w-full h-9 px-2 text-sm rounded glass-button max-w-[160px] min-w-[120px] sm:min-w-[140px] lg:max-w-none"
+            value={filters.year === 'all' ? 'all' : String(filters.year)}
+            onChange={(e) => updateFilters({ year: e.target.value === 'all' ? 'all' : Number(e.target.value) })}
+          >
+            <option value="all">Todos</option>
+            {YEARS.map(y => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
+        </div>
+        <div className="lg:flex-1 min-w-[120px] sm:min-w-[140px]">
+          <label className="block text-sm mb-1">Idioma:</label>
+          <select
+            className="w-full h-9 px-2 text-sm rounded glass-button max-w-[160px] min-w-[120px] sm:min-w-[140px] lg:max-w-none"
+            value={filters.language === 'all' ? 'all' : filters.language}
+            onChange={(e) => updateFilters({ language: e.target.value === 'all' ? 'all' : e.target.value })}
+          >
+            <option value="all">Todos</option>
+            {LANGS.map(l => (
+              <option key={l} value={l}>{l}</option>
+            ))}
+          </select>
+        </div>
+        <div className="lg:flex-1 min-w-[120px] sm:min-w-[140px]">
+          <label className="block text-sm mb-1">Ordenar por:</label>
+          <select
+            className="w-full h-9 px-2 text-sm rounded glass-button max-w-[160px] min-w-[120px] sm:min-w-[140px] lg:max-w-none"
+            value={filters.sortBy}
+            onChange={(e) => updateFilters({ sortBy: e.target.value as any })}
+          >
+            <option value="recent">Más reciente</option>
+            <option value="rating">Mejor calificada</option>
+            <option value="popularity">Popularidad</option>
+            <option value="title_asc">Título A–Z</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Grid de categorías rápidas */}
+      <div className="flex flex-wrap w-fit mx-auto lg:w-full lg:mx-0 gap-2 sm:gap-3 mb-4 justify-center">
+      <div className="lg:flex-1 min-w-[120px] sm:min-w-[140px]"><button onClick={() => setSelectedType('multi')} className="glass-button px-3 py-2 rounded w-full">Todos</button></div>
+      <div className="lg:flex-1 min-w-[120px] sm:min-w-[140px]"><button onClick={() => setSelectedType('movie')} className="glass-button px-3 py-2 rounded w-full">Película</button></div>
+      <div className="lg:flex-1 min-w-[120px] sm:min-w-[140px]"><button onClick={() => setSelectedType('tv')} className="glass-button px-3 py-2 rounded w-full">Serie</button></div>
+      <div className="lg:flex-1 min-w-[120px] sm:min-w-[140px]"><button onClick={() => setSelectedType(undefined)} className="glass-button px-3 py-2 rounded w-full">Borrar filtro</button></div>
       </div>
 
       {!debounced.trim() && !selectedType && <div className="text-neutral-400">Escribe algo para buscar o elige una categoría.</div>}
@@ -72,26 +209,26 @@ export function MoviesExplorer() {
         </div>
       )}
 
-      {data?.results && (
-        <> 
+      {data && (
+        <>
           <div className="mb-2 text-sm text-neutral-300">
             <strong>Resultados:</strong> {data.total_results}
             {isFetching && <span className="ml-2 text-neutral-500">(actualizando...)</span>}
-            <span className="ml-2">• Página {page} de {Math.min(data.total_pages, 500)}</span>
           </div>
-          <MovieList 
-            items={data.results} 
-            onSelect={(id, type) => { setSelectedId(id); setSelectedDetailType(type); }} 
+
+          <MovieList
+            items={(data.results ?? []) as any}
+            onSelect={(id, type) => { setSelectedId(id); setSelectedDetailType(type); }}
             selectedId={selectedId ?? undefined}
           />
 
           {/* Paginación: flechas arriba y números abajo a ≤528px */}
           {typeof data.total_pages === 'number' && (
-            <div className="flex items-center justify-between gap-2 mt-4 max-[528px]:flex-col max-[528px]:gap-3">
+            <div className="flex items-center justify-center gap-2 mt-4 max-[528px]:flex-col max-[528px]:gap-3 mx-auto">
               {/* Grupo de flechas en móvil */}
               <div className="hidden max-[528px]:flex w-full justify-center gap-4 max-[528px]:gap-2">
                 <button
-                  className="glass-button px-2 py-2 rounded max-[528px]:px-1 max-[528px]:py-1 max-[528px]:text-[0.5rem]"
+                  className="glass-button w-8 h-8 p-0 rounded text-xs"
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page <= 1}
                   aria-label="Anterior"
@@ -101,7 +238,7 @@ export function MoviesExplorer() {
                 </button>
 
                 <button
-                  className="glass-button px-2 py-2 rounded max-[528px]:px-1 max-[528px]:py-1 max-[528px]:text-[0.5rem]"
+                  className="glass-button w-8 h-8 p-0 rounded text-xs"
                   onClick={() => setPage(1)}
                   disabled={page <= 1}
                   aria-label="Primera"
@@ -111,9 +248,9 @@ export function MoviesExplorer() {
                 </button>
 
                 <button
-                  className="glass-button px-2 py-2 rounded max-[528px]:px-1 max-[528px]:py-1 max-[528px]:text-[0.5rem]"
-                  onClick={() => setPage(Math.min(data.total_pages, 500))}
-                  disabled={page >= Math.min(data.total_pages, 500)}
+                  className="glass-button w-8 h-8 p-0 rounded text-xs"
+                  onClick={() => setPage(Math.min(data?.total_pages ?? 1, 500))}
+                  disabled={page >= Math.min(data?.total_pages ?? 1, 500)}
                   aria-label="Última"
                   title="Última"
                 >
@@ -121,9 +258,9 @@ export function MoviesExplorer() {
                 </button>
 
                 <button
-                  className="glass-button px-2 py-2 rounded max-[528px]:px-1 max-[528px]:py-1 max-[528px]:text-[0.5rem]"
-                  onClick={() => setPage((p) => Math.min(Math.min(data.total_pages, 500), p + 1))}
-                  disabled={page >= Math.min(data.total_pages, 500)}
+                  className="glass-button w-8 h-8 p-0 rounded text-xs"
+                  onClick={() => setPage((p) => Math.min(Math.min(data?.total_pages ?? 1, 500), p + 1))}
+                  disabled={page >= Math.min(data?.total_pages ?? 1, 500)}
                   aria-label="Siguiente"
                   title="Siguiente"
                 >
@@ -154,8 +291,8 @@ export function MoviesExplorer() {
               </button>
 
               {/* Números */}
-              <div className="flex items-center gap-2 justify-center w-full max-[528px]:gap-1 max-[528px]:text-[0.5rem]">
-                <div className="flex items-center gap-1 max-[528px]:gap-1">
+              <div className="flex items-center gap-2 justify-center max-[528px]:gap-1 max-[528px]:text-[0.75rem]">
+                <div className="flex items-center gap-1">
                   {(() => {
                     const maxVisible = 4;
                     const lastPage = Math.max(1, Math.min(data.total_pages, 500));
@@ -175,7 +312,7 @@ export function MoviesExplorer() {
                               key={`page-${p}`}
                               aria-current="page"
                               disabled
-                              className="glass-button px-2 py-1 rounded font-semibold cursor-default max-[528px]:px-1 max-[528px]:py-0.5 max-[528px]:text-[0.5rem]"
+                              className="glass-button w-8 h-8 p-0 rounded font-semibold cursor-default flex items-center justify-center"
                               style={{ color: '#646cff', borderColor: '#646cff' }}
                             >
                               {p}
@@ -183,7 +320,7 @@ export function MoviesExplorer() {
                           ) : (
                             <button
                               key={`page-${p}`}
-                              className="glass-button px-2 py-1 rounded text-neutral-300 max-[528px]:px-1 max-[528px]:py-0.5 max-[528px]:text-[0.5rem]"
+                              className="glass-button w-8 h-8 p-0 rounded text-neutral-300 flex items-center justify-center"
                               onClick={() => setPage(p)}
                             >
                               {p}
@@ -199,8 +336,8 @@ export function MoviesExplorer() {
               {/* Última página en desktop */}
               <button
                 className="glass-button px-2 py-2 rounded max-[528px]:hidden"
-                onClick={() => setPage(Math.min(data.total_pages, 500))}
-                disabled={page >= Math.min(data.total_pages, 500)}
+                onClick={() => setPage(Math.min(data?.total_pages ?? 1, 500))}
+                disabled={page >= Math.min(data?.total_pages ?? 1, 500)}
                 aria-label="Última"
                 title="Última"
               >
@@ -210,8 +347,8 @@ export function MoviesExplorer() {
               {/* Flecha derecha en desktop */}
               <button
                 className="glass-button px-2 py-2 rounded max-[528px]:hidden"
-                onClick={() => setPage((p) => Math.min(Math.min(data.total_pages, 500), p + 1))}
-                disabled={page >= Math.min(data.total_pages, 500)}
+                onClick={() => setPage((p) => Math.min(Math.min(data?.total_pages ?? 1, 500), p + 1))}
+                disabled={page >= Math.min(data?.total_pages ?? 1, 500)}
                 aria-label="Siguiente"
                 title="Siguiente"
               >

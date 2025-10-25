@@ -1,6 +1,7 @@
 import { useGetMovieDetailQuery, useGetTvDetailQuery } from '../store/api/moviesApi';
 import type { MediaType } from '../types/movie';
 import ImageWithSpinner from './ImageWithSpinner'
+import CollapsibleSynopsis from './CollapsibleSynopsis'
 
 interface MovieDetailProps {
   id: number;
@@ -8,53 +9,48 @@ interface MovieDetailProps {
   onClose?: () => void;
   showCloseButton?: boolean;
   imageHalf?: boolean;
+  compact?: boolean;
 }
 
-const imgBase = 'https://image.tmdb.org/t/p/w500';
+export function MovieDetail({ id, type, onClose, showCloseButton = true, imageHalf = false, compact = false }: MovieDetailProps) {
+  const { data, isFetching } = type === 'movie' ? useGetMovieDetailQuery(id) : useGetTvDetailQuery(id);
 
-export function MovieDetail({ id, type, onClose, showCloseButton = true, imageHalf = false }: MovieDetailProps) {
-  const movieQ = type === 'movie' ? useGetMovieDetailQuery(id) : undefined;
-  const tvQ = type === 'tv' ? useGetTvDetailQuery(id) : undefined;
+  const title = (data as any)?.title || (data as any)?.name || 'Sin título';
+  const year = (data as any)?.release_date?.slice(0, 4) || (data as any)?.first_air_date?.slice(0, 4) || '—';
+  const genres = (data as any)?.genres?.map((g: any) => g.name).join(', ');
+  const overview = (data as any)?.overview;
+  const rating = (data as any)?.vote_average ? (data as any).vote_average.toFixed(1) : undefined;
+  const votes = (data as any)?.vote_count;
+  const poster = (data as any)?.poster_path ? `https://image.tmdb.org/t/p/w500${(data as any).poster_path}` : undefined;
 
-  const isLoading = movieQ?.isLoading || tvQ?.isLoading || false;
-  const error = movieQ?.error || tvQ?.error;
-  const isFetching = movieQ?.isFetching || tvQ?.isFetching || false;
-  const data = (type === 'movie' ? movieQ?.data : tvQ?.data) as any;
-
-  if (isLoading) return <div className="text-neutral-400">Cargando detalle...</div>;
-  if (error) return <div className="text-red-400">Error al cargar el detalle.</div>;
-  if (!data) return null;
-
-  const title = type === 'movie' ? data.title : data.name;
-  const date = type === 'movie' ? data.release_date : data.first_air_date;
-  const year = date ? new Date(date).getFullYear() : '—';
-  const poster = data.poster_path ? `${imgBase}${data.poster_path}` : '';
-  const genres = (data.genres ?? []).map((g: any) => g.name).join(', ');
-  const overview = data.overview;
-  const rating = data.vote_average;
-  const votes = data.vote_count;
+  const imageHeight = compact ? "h-[150px] md:h-[200px]" : "h-[300px] md:h-[400px]";
 
   return (
-    <div className="mt-6">
-      <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-start">
-        <div className={imageHalf ? "md:w-1/2" : ""}>
-          <div className="w-full h-64 md:h-full">
+    <div>
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className={imageHalf ? "md:w-[30%]" : ""}>
+          <div className={`w-full ${imageHeight} rounded overflow-hidden`}>
             <ImageWithSpinner
               src={poster}
               alt={title}
               containerClassName="w-full h-full"
-              imgClassName="max-w-full max-h-full object-cover"
+              imgClassName="w-full h-full object-cover"
             />
           </div>
         </div>
-        <div className={imageHalf ? "mt-2 md:mt-0 md:w-1/2" : "mt-2 md:mt-0"}>
+        <div className={imageHalf ? "mt-2 md:mt-0 md:w-[70%]" : "mt-2 md:mt-0"}>
           <h2 className="mt-0 text-xl md:text-2xl font-semibold">
             {title} {isFetching && <small className="text-neutral-500">(actualizando...)</small>}
           </h2>
-          <p className="text-sm md:text-base"><strong>Año:</strong> {year}</p>
-          {genres && <p className="text-sm md:text-base"><strong>Género:</strong> {genres}</p>}
-          {overview && <p className="text-sm md:text-base"><strong>Sinopsis:</strong> {overview}</p>}
-          {rating && <p className="text-sm md:text-base"><strong>TMDb:</strong> {rating} ({votes} votos)</p>}
+          <p className="text-sm md:text-base"><strong className="text-[#646cff]">Año:</strong> {year}</p>
+          {genres && <p className="text-sm md:text-base"><strong className="text-[#646cff]">Género:</strong> {genres}</p>}
+          {overview && (
+            <div className="text-sm md:text-base">
+              <p className="m-0"><strong className="text-[#646cff]">Sinopsis:</strong></p>
+              <CollapsibleSynopsis text={overview} initialLines={2} />
+            </div>
+          )}
+          {rating && <p className="text-sm md:text-base"><strong className="text-[#646cff]">TMDb:</strong> {rating} ({votes} votos)</p>}
           {onClose && showCloseButton && (
             <button onClick={onClose} className="mt-3 px-3 py-2 rounded bg-neutral-800 hover:bg-neutral-700">Cerrar</button>
           )}

@@ -55,13 +55,19 @@ export interface TMDbSearchItem {
   poster_path?: string | null;
   backdrop_path?: string | null;
   overview?: string;
+  // Extensiones para filtros
+  genre_ids?: number[]; // géneros TMDb
+  original_language?: string; // idioma original (código ISO 639-1)
+  vote_average?: number; // calidad / calificación media
+  popularity?: number; // popularidad
+  adult?: boolean; // contenido adulto
 }
 
 export interface TMDbSearchResponse {
   page: number;
   results: TMDbSearchItem[];
-  total_results: number;
-  total_pages: number;
+  total_results?: number;
+  total_pages?: number;
 }
 
 export interface TMDbGenre { id: number; name: string }
